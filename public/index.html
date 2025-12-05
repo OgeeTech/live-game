@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>OG Game — Home</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+    <main class="home-page">
+        <div class="home-card">
+            <img src="/assets/images/logo.png" alt="logo" class="logo" onerror="this.style.display='none'" />
+            <h1>Live Guess — Play with Friends</h1>
+            <p class="lead">Create a session, share the token and start guessing!</p>
+
+            <div class="home-actions">
+                <div class="card small-card">
+                    <h3>Create New Game</h3>
+                    <input id="create-name" placeholder="Your display name" maxlength="20" />
+                    <button id="btn-create" class="btn-glow">Create & Get Token</button>
+                    <div id="create-result" class="muted small"></div>
+                </div>
+
+                <div class="card small-card">
+                    <h3>Join Game</h3>
+                    <input id="join-name" placeholder="Your name" maxlength="20" />
+                    <input id="join-token" placeholder="Enter token (e.g. AB12CD)" maxlength="10" />
+                    <button id="btn-join" class="btn-neon">Join Game</button>
+                    <div id="join-result" class="muted small"></div>
+                </div>
+            </div>
+
+            <p class="muted tiny">Remember: keep the token secret among friends. Validate inputs before joining.</p>
+        </div>
+    </main>
+
+    <script src="/js/home.js"></script>
+</body>
+
+</html>

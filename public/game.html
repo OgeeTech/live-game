@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>OG Live Guess</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./style.css" />
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <div class="game-shell">
+        <header class="topbar">
+            <div class="top-left">
+                <div id="token-badge" class="badge">Token: —</div>
+                <div id="player-count" class="badge muted">Players: 0</div>
+            </div>
+
+            <div class="top-center">
+                <div id="timer-wrap" class="countdown-ring">
+                    <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="60" cy="60" r="54" stroke="rgba(255,255,255,0.08)" stroke-width="10" fill="none">
+                        </circle>
+                        <circle id="ring-circle" cx="60" cy="60" r="54" stroke="#00ff6a" stroke-width="10" fill="none"
+                            stroke-dasharray="339.292" stroke-dashoffset="0" stroke-linecap="round"></circle>
+                    </svg>
+                    <div id="timer-value" class="timer-text">60</div>
+                </div>
+            </div>
+
+            <div class="top-right">
+                <div id="master-indicator" class="muted"></div>
+            </div>
+        </header>
+
+        <main class="main-grid">
+            <section class="left-panel">
+                <div id="notice-board" class="notice">Welcome — waiting for players and the master.</div>
+
+                <div class="chat-window" id="chat"></div>
+
+                <div class="input-row">
+                    <input id="input-chat" placeholder="Type message or guess and press Enter" />
+                    <button id="btn-send" class="btn-small">Send</button>
+                </div>
+            </section>
+
+            <aside class="right-panel">
+                <div class="panel-section">
+                    <h4>Players</h4>
+                    <ul id="players-list" class="players-list"></ul>
+                </div>
+
+                <div class="panel-section">
+                    <h4>Master Controls</h4>
+                    <input id="input-question" placeholder="Question (master only)" />
+                    <input id="input-answer" placeholder="Answer (hidden, master only)" />
+                    <div class="control-row" style="display:flex;gap:8px;margin-top:8px;">
+                        <button id="btn-create-question" class="btn-neon">Create Q</button>
+                        <button id="btn-start" class="btn-glow">Start</button>
+                        <button id="btn-leave" class="btn-plain">Leave</button>
+                    </div>
+                </div>
+
+                <div class="panel-section scores">
+                    <h4>Scores</h4>
+                    <ul id="scores-list" class="scores-list"></ul>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <script src="/js/socket.js"></script>
+    <script src="/js/game.js"></script>
+</body>
+
+</html>
