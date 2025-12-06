@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>OG Live Guess</title>
+    <title>Neon Guess</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="./style.css" />
     <script src="/socket.io/socket.io.js"></script>
@@ -13,62 +13,85 @@
     <div class="game-shell">
         <header class="topbar">
             <div class="top-left">
-                <div id="token-badge" class="badge">Token: —</div>
-                <div id="player-count" class="badge muted">Players: 0</div>
+                <button id="btn-help" class="btn-plain btn-small">?</button>
+                <div id="token-badge" class="badge">Token: ...</div>
             </div>
 
             <div class="top-center">
                 <div id="timer-wrap" class="countdown-ring">
-                    <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="60" cy="60" r="54" stroke="rgba(255,255,255,0.08)" stroke-width="10" fill="none">
+                    <svg width="100" height="100" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="54" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="none">
                         </circle>
-                        <circle id="ring-circle" cx="60" cy="60" r="54" stroke="#00ff6a" stroke-width="10" fill="none"
+                        <circle id="ring-circle" cx="60" cy="60" r="54" stroke="#00f2ff" stroke-width="8" fill="none"
                             stroke-dasharray="339.292" stroke-dashoffset="0" stroke-linecap="round"></circle>
+                        <text id="timer-value" x="50%" y="55%" text-anchor="middle" dominant-baseline="middle"
+                            fill="#fff" font-size="28" font-family="Orbitron">60</text>
                     </svg>
-                    <div id="timer-value" class="timer-text">60</div>
                 </div>
             </div>
 
             <div class="top-right">
-                <div id="master-indicator" class="muted"></div>
+                <div id="player-count" class="badge">Players: 0</div>
             </div>
         </header>
 
         <main class="main-grid">
             <section class="left-panel">
-                <div id="notice-board" class="notice">Welcome — waiting for players and the master.</div>
-
-                <div class="chat-window" id="chat"></div>
+                <div id="notice-board" class="notice" style="display:none"></div>
+                <div class="chat-window" id="chat">
+                    <div class="system-msg">Connecting to server...</div>
+                </div>
 
                 <div class="input-row">
-                    <input id="input-chat" placeholder="Type message or guess and press Enter" />
-                    <button id="btn-send" class="btn-small">Send</button>
+                    <input id="input-chat" placeholder="Type message or guess..." autocomplete="off" />
+                    <button id="btn-send" class="btn-glow btn-small">SEND</button>
                 </div>
             </section>
 
             <aside class="right-panel">
                 <div class="panel-section">
-                    <h4>Players</h4>
+                    <h4>ROSTER</h4>
                     <ul id="players-list" class="players-list"></ul>
                 </div>
 
-                <div class="panel-section">
-                    <h4>Master Controls</h4>
-                    <input id="input-question" placeholder="Question (master only)" />
-                    <input id="input-answer" placeholder="Answer (hidden, master only)" />
-                    <div class="control-row" style="display:flex;gap:8px;margin-top:8px;">
-                        <button id="btn-create-question" class="btn-neon">Create Q</button>
-                        <button id="btn-start" class="btn-glow">Start</button>
-                        <button id="btn-leave" class="btn-plain">Leave</button>
+                <div class="panel-section" id="master-controls" style="display:none">
+                    <h4 style="color:var(--accent1)">MASTER CONTROL</h4>
+                    <input id="input-question" placeholder="Enter Question" />
+                    <input id="input-answer" placeholder="Hidden Answer" />
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+                        <button id="btn-create-question" class="btn-neon btn-small">Set Question</button>
+                        <button id="btn-start" class="btn-glow btn-small">Start Round</button>
                     </div>
                 </div>
 
-                <div class="panel-section scores">
-                    <h4>Scores</h4>
-                    <ul id="scores-list" class="scores-list"></ul>
-                </div>
+                <button id="btn-leave" class="btn-plain" style="margin-top:auto">Leave Game</button>
             </aside>
         </main>
+    </div>
+
+    <div id="overlay-layer">
+        <div id="flash-card" class="flash-card">
+            <h2 id="flash-title">ALERT</h2>
+            <div id="flash-body" class="big-text">...</div>
+            <button id="btn-flash-close" class="btn-plain btn-small">Dismiss</button>
+        </div>
+    </div>
+
+    <div id="instructions-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="color:var(--accent1)">HOW TO PLAY</h2>
+            <ul>
+                <li><strong>Roles:</strong> One player is the <span style="color:gold">Master</span>, others are
+                    Guessers.</li>
+                <li><strong>Master:</strong> Creates a question and a secret answer, then starts the timer.</li>
+                <li><strong>Guessers:</strong> Type answers in the chat. You have <strong>3 attempts</strong> per round.
+                </li>
+                <li><strong>Winning:</strong> First to guess correctly gets +1 point and becomes the next Master.</li>
+                <li><strong>Timeout:</strong> If time runs out, the Master role passes to the next player automatically.
+                </li>
+            </ul>
+            <button id="btn-close-help" class="btn-glow" style="width:100%">GOT IT</button>
+        </div>
     </div>
 
     <script src="/js/socket.js"></script>
