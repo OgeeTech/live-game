@@ -20,7 +20,7 @@ body {
   height: 100vh;
   background-color: var(--bg-dark);
   /* Animated Grid Background */
-  background-image: 
+  background-image:
     linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
   background-size: 40px 40px;
@@ -51,6 +51,9 @@ button {
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-weight: 700;
 }
 
 .btn-glow {
@@ -82,11 +85,11 @@ button {
 }
 .btn-plain:hover { background: rgba(255,255,255,0.2); }
 
-.btn-small { padding: 6px 12px; border-radius: 4px; font-size: 0.9rem; }
+.btn-small { padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; }
 
 /* LAYOUTS */
 .home-page, .game-shell { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; }
-.home-page { align-items: center; justify-content: center; }
+.home-page { align-items: center; justify-content: center; padding: 20px; }
 
 /* HOME CARD */
 .home-card {
@@ -98,14 +101,17 @@ button {
   box-shadow: 0 0 30px rgba(0,0,0,0.8);
   text-align: center;
   max-width: 800px;
+  width: 100%; /* Make it stretch a bit more on smaller desktops */
 }
 
-.home-actions { display: flex; gap: 20px; justify-content: center; margin-top: 30px; }
+.home-actions { display: flex; gap: 20px; justify-content: center; margin-top: 30px; flex-wrap: wrap;}
 .small-card {
   background: rgba(0,0,0,0.3);
   padding: 20px;
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.1);
+  flex-grow: 1; /* Allow cards to grow */
+  min-width: 280px; /* Prevent them from collapsing too small */
 }
 
 input {
@@ -117,6 +123,7 @@ input {
   color: var(--accent1);
   font-family: var(--font-head);
   font-size: 1.1rem;
+  border-radius: 4px;
 }
 input:focus { outline: none; border-color: var(--accent1); box-shadow: 0 0 10px rgba(0, 242, 255, 0.3); }
 
@@ -130,8 +137,15 @@ input:focus { outline: none; border-color: var(--accent1); box-shadow: 0 0 10px 
 .badge { padding: 5px 10px; background: rgba(255,255,255,0.1); border-radius: 4px; font-size: 0.8rem; }
 
 .main-grid {
-  display: grid; grid-template-columns: 1fr 350px; gap: 20px; padding: 20px; flex: 1;
-  max-width: 1400px; margin: 0 auto; width: 100%;
+  display: grid; 
+  grid-template-columns: 1fr 350px; /* Desktop two-column */
+  gap: 20px; 
+  padding: 20px; 
+  flex: 1;
+  max-width: 1400px; 
+  margin: 0 auto; 
+  width: 100%;
+  overflow-y: auto; /* Allow scrolling on the main area */
 }
 
 .left-panel, .right-panel { display: flex; flex-direction: column; gap: 15px; }
@@ -145,6 +159,7 @@ input:focus { outline: none; border-color: var(--accent1); box-shadow: 0 0 10px 
   padding: 15px;
   overflow-y: auto;
   display: flex; flex-direction: column; gap: 10px;
+  min-height: 200px; /* Ensure chat window has a minimum height */
 }
 .chat-bubble {
   background: rgba(255,255,255,0.05);
@@ -154,7 +169,18 @@ input:focus { outline: none; border-color: var(--accent1); box-shadow: 0 0 10px 
 .chat-bubble.mine { align-self: flex-end; background: linear-gradient(135deg, var(--accent2), #8a00d4); }
 .system-msg { align-self: center; color: #888; font-size: 0.8rem; font-style: italic; }
 
-@keyframes popIn { from{transform: scale(0.8); opacity:0;} to{transform: scale(1); opacity:1;} }
+.input-row {
+    display: flex;
+    gap: 10px;
+}
+.input-row input {
+    flex-grow: 1;
+    margin: 0;
+}
+.input-row button {
+    width: 100px;
+    flex-shrink: 0;
+}
 
 /* RIGHT PANEL */
 .panel-section {
@@ -170,13 +196,20 @@ input:focus { outline: none; border-color: var(--accent1); box-shadow: 0 0 10px 
 .attempts { color: var(--danger); letter-spacing: 2px; }
 
 /* TIMER */
+.countdown-ring { 
+    width: 100px; height: 100px; 
+    display: flex; align-items: center; justify-content: center;
+}
+.countdown-ring svg { transform: rotate(-90deg); }
 .countdown-ring circle { transition: stroke-dashoffset 1s linear; }
-.timer-text { fill: #fff; font-size: 2rem; font-family: var(--font-head); }
+.timer-text { font-size: 1.5rem; font-family: var(--font-head); }
 
-/* --- FLASH CARD & OVERLAYS --- */
+
+/* --- FLASH CARD & OVERLAYS (No change needed here for responsiveness) --- */
 #overlay-layer {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  pointer-events: none; /* Let clicks pass through unless active */
+  position: fixed; /* Use fixed so it covers the whole viewport */
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
   display: flex; align-items: center; justify-content: center;
   z-index: 100;
 }
@@ -185,46 +218,82 @@ input:focus { outline: none; border-color: var(--accent1); box-shadow: 0 0 10px 
   background: rgba(5, 11, 20, 0.95);
   border: 2px solid var(--accent1);
   box-shadow: 0 0 50px rgba(0, 242, 255, 0.3);
-  padding: 40px;
+  padding: 30px; /* Reduced padding for mobile */
   border-radius: 16px;
   text-align: center;
-  max-width: 600px;
+  max-width: 90%; /* Allow it to take up most of the mobile screen */
   transform: scale(0.8);
   opacity: 0;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   pointer-events: auto;
   position: absolute;
 }
-
-.flash-card.active {
-  transform: scale(1);
-  opacity: 1;
-}
-
-.flash-card h2 { color: var(--accent1); font-size: 2.5rem; margin: 0 0 10px 0; }
-.flash-card p { font-size: 1.2rem; margin-bottom: 20px; }
-.flash-card .big-text { font-size: 3rem; color: #fff; text-shadow: 0 0 20px var(--accent2); margin: 20px 0; }
+.flash-card.active { transform: scale(1); opacity: 1; }
+.flash-card h2 { color: var(--accent1); font-size: 1.8rem; margin: 0 0 10px 0; }
+.flash-card .big-text { font-size: 2.5rem; color: #fff; text-shadow: 0 0 20px var(--accent2); margin: 20px 0; }
 .winner-anim { animation: rainbow 3s infinite; }
 
 @keyframes rainbow { 
   0% { color: var(--accent1); } 50% { color: var(--accent2); } 100% { color: var(--accent1); } 
 }
 
-/* Modal for instructions */
-.modal {
-  position: fixed; top:0; left:0; width:100%; height:100%;
-  background: rgba(0,0,0,0.8);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 200;
-  opacity: 0; pointer-events: none; transition: opacity 0.3s;
-}
-.modal.open { opacity: 1; pointer-events: auto; }
-.modal-content {
-  background: #111; border: 1px solid var(--accent1);
-  padding: 30px; max-width: 500px; border-radius: 12px;
-  text-align: left;
-}
-.modal-content ul { line-height: 1.6; }
+.modal { position: fixed; z-index: 200; }
+.modal-content { max-width: 90%; }
 
-/* Helper classes */
-.hidden { display: none !important; }
+
+/* ========================================================= */
+/* 📱 MOBILE RESPONSIVENESS (Max Width 900px)                */
+/* ========================================================= */
+@media (max-width: 900px) {
+    
+    /* Change the game layout from 2 columns to 1 column */
+    .main-grid {
+        grid-template-columns: 1fr;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    /* Hide the large timer ring in the top center to save space */
+    .top-center {
+        display: none;
+    }
+
+    /* Force the right panel (controls/players) to appear ABOVE the chat/input */
+    .right-panel {
+        order: -1;
+        padding: 0; /* Remove left padding/border since it's now top-to-bottom */
+        border-left: none;
+    }
+
+    /* In the home page, stack the join/create cards */
+    .home-actions {
+        flex-direction: column;
+    }
+
+    /* Reduce font size for player lists and badges */
+    .badge {
+        font-size: 0.75rem;
+    }
+    .players-list li {
+        font-size: 0.9rem;
+    }
+}
+
+/* Finer tuning for very small screens (phones) */
+@media (max-width: 480px) {
+    
+    .home-card {
+        padding: 20px;
+    }
+    
+    .topbar {
+        padding: 8px 10px;
+    }
+
+    .input-row {
+        flex-direction: column;
+    }
+    .input-row button {
+        width: 100%;
+    }
+}
