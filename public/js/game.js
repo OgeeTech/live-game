@@ -66,14 +66,24 @@
     }
     if (btnFlashClose) btnFlashClose.onclick = () => flashCard.classList.remove('active');
 
-    // Instructions modal
-    if (!localStorage.getItem('seen_instructions') && modal) modal.classList.add('open');
-    if (btnHelp) btnHelp.onclick = () => modal.classList.add('open');
-    if (btnCloseHelp) btnCloseHelp.onclick = () => {
-        modal.classList.remove('open');
-        localStorage.setItem('seen_instructions', '1');
-        playSound('click');
-    };
+    // Instructions modal setup
+
+    // Manual Open: Clicking the Help button (?)
+    if (btnHelp) {
+        btnHelp.onclick = () => {
+            modal.classList.add('open');
+            playSound('click');
+        };
+    }
+
+    // Manual Close: Clicking the 'GOT IT' button
+    if (btnCloseHelp) {
+        btnCloseHelp.onclick = () => {
+            modal.classList.remove('open');
+            localStorage.setItem('seen_instructions', '1');
+            playSound('click');
+        };
+    }
 
     // game logic
     let players = [];

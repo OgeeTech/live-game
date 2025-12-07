@@ -13,8 +13,18 @@
   --font-body: 'Rajdhani', sans-serif;
 }
 
-/* RESET */
+/* RESET & SCROLLBAR HIDING */
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+*::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
 
 body {
   height: 100vh;
@@ -25,7 +35,8 @@ body {
   background-size: 40px 40px;
   color: var(--text);
   font-family: var(--font-body);
-  overflow: hidden; /* Prevent body scroll */
+  /* Allow body to scroll if needed, but usually we scroll inner containers */
+  overflow: hidden; 
   position: relative;
 }
 
@@ -77,13 +88,16 @@ button {
 
 .btn-small { padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; }
 
-/* HOME PAGE */
+/* HOME PAGE - SCROLLABLE */
 .home-page {
-  height: 100%;
+  /* Use min-height to allow growth/scrolling */
+  min-height: 100vh;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 40px 20px; /* Added padding for better mobile view */
+  overflow-y: auto; /* Enable scrolling */
 }
 
 .home-card {
@@ -95,6 +109,7 @@ button {
   text-align: center;
   width: 95%;
   max-width: 700px;
+  margin: auto; /* Centers card if height is small */
 }
 
 .home-actions {
@@ -123,7 +138,7 @@ input {
   border-radius: 4px;
   font-size: 1.1rem;
 }
-input:focus { border-color: var(--accent1); }
+input:focus { border-color: var(--accent1); outline: none; }
 
 /* GAME LAYOUT */
 .game-shell {
@@ -137,8 +152,10 @@ input:focus { border-color: var(--accent1); }
   padding: 10px 20px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background: rgba(0,0,0,0.4);
   border-bottom: 1px solid rgba(255,255,255,0.1);
+  flex-shrink: 0; /* Don't shrink header */
 }
 
 .badge {
@@ -155,7 +172,7 @@ input:focus { border-color: var(--accent1); }
   gap: 20px;
   padding: 20px;
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* Allow scrolling */
   width: 100%;
   margin: 0 auto;
 }
@@ -174,7 +191,7 @@ input:focus { border-color: var(--accent1); }
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.05);
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* Allow scrolling inside chat */
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -186,6 +203,7 @@ input:focus { border-color: var(--accent1); }
   background: rgba(255,255,255,0.07);
   border-radius: 8px;
   max-width: 85%;
+  word-wrap: break-word;
 }
 .chat-bubble.mine {
   align-self: flex-end;
@@ -227,7 +245,13 @@ input:focus { border-color: var(--accent1); }
 .attempts { color: var(--danger); font-size: 0.9rem; }
 
 /* TIMER */
-.countdown-ring { width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+.countdown-ring { 
+    width: 100px; 
+    height: 100px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
 .timer-text { font-size: 1.4rem; }
 
 /* FLASH CARD OVERLAY */
@@ -261,9 +285,9 @@ input:focus { border-color: var(--accent1); }
 /* MODAL/INSTRUCTIONS */
 .modal {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.85);
   display: flex; align-items: center; justify-content: center;
-  z-index: 200;
+  z-index: 9999; /* Ensure top */
   opacity: 0; pointer-events: none; transition: opacity 0.3s;
 }
 .modal.open { opacity: 1; pointer-events: auto; }
@@ -289,8 +313,27 @@ input:focus { border-color: var(--accent1); }
     gap: 12px;
   }
 
-  /* Hide large timer, let right panel appear first */
-  .top-center { display: none; }
+  /* --- TIMER VISIBILITY ON MOBILE --- */
+  .top-center { 
+      /* Do NOT hide logic here */
+      display: flex;
+      justify-content: center;
+  }
+  
+  /* Scale down the ring for mobile */
+  .countdown-ring {
+      width: 60px;
+      height: 60px;
+  }
+  .countdown-ring svg {
+      width: 60px;
+      height: 60px;
+  }
+  .timer-text {
+      font-size: 1rem;
+  }
+
+  /* Move Right Panel (Players/Controls) to TOP */
   .right-panel { order: -1; }
 
   /* HOME PAGE STACKING */
@@ -298,23 +341,23 @@ input:focus { border-color: var(--accent1); }
   .small-card { min-width: unset; }
 
   /* ---------------------------------- */
-  /* IMPLEMENT MOBILE CHAT INPUT DESIGN */
+  /* MOBILE CHAT INPUT DESIGN           */
   /* ---------------------------------- */
   .chat-input-container {
-    display: block; /* Use block for positioning */
+    display: block; 
     position: relative;
-    padding-top: 5px; /* Visual space above input */
+    padding-top: 5px; 
   }
 
-  /* Input fills the container, leaves space for the button */
+  /* Input fills width, space for button */
   #input-chat {
     width: 100%;
-    padding-right: 80px; /* Space for the button */
+    padding-right: 80px; 
     margin: 0;
     height: 48px;
   }
 
-  /* Send button positioned absolutely inside the input area */
+  /* Absolute Send Button */
   #btn-send {
     position: absolute;
     right: 5px;
@@ -324,7 +367,7 @@ input:focus { border-color: var(--accent1); }
     height: 38px;
     padding: 0;
     font-size: 0.85rem;
-    line-height: 38px; /* Center text vertically */
+    line-height: 38px;
   }
 }
 
@@ -334,7 +377,9 @@ input:focus { border-color: var(--accent1); }
   .home-card, .modal-content {
     padding: 20px;
   }
-  .topbar { padding: 8px 10px; }
+  /* Reduce padding on very small screens to save space */
+  .topbar { padding: 5px 10px; }
+  .badge { font-size: 0.75rem; padding: 4px 8px; }
 
   .chat-window { min-height: 150px; }
   
