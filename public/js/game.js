@@ -67,22 +67,28 @@
 //     }
 //     if (btnFlashClose) btnFlashClose.onclick = () => flashCard.classList.remove('active');
 
-//     // --- INSTRUCTIONS LOGIC ---
-//     // 1. Auto-open if not seen yet
-//     if (modal && !localStorage.getItem('seen_instructions')) {
-//         modal.classList.add('open');
+//     // --- INSTRUCTIONS LOGIC (FORCE SHOW) ---
+//     function checkInstructions() {
+//         // We removed the localStorage check so this opens EVERY time you enter a game
+//         if (modal) {
+//             modal.classList.add('open');
+//         }
 //     }
-//     // 2. Button Handlers
+
+//     // Manual Open
 //     if (btnHelp) {
 //         btnHelp.onclick = () => {
 //             modal.classList.add('open');
 //             playSound('click');
 //         };
 //     }
+
+//     // Manual Close
 //     if (btnCloseHelp) {
 //         btnCloseHelp.onclick = () => {
 //             modal.classList.remove('open');
-//             localStorage.setItem('seen_instructions', '1');
+//             // We don't strictly need to save to localStorage if we want it to show every time,
+//             // but keeping it doesn't hurt.
 //             playSound('click');
 //         };
 //     }
@@ -139,18 +145,17 @@
 //         return '❤'.repeat(Math.max(0, n));
 //     }
 
-//     // --- TIMER LOGIC (UPDATED) ---
+//     // --- TIMER LOGIC ---
 //     const RADIUS = 54;
 //     const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 //     if (ringCircle) ringCircle.style.strokeDasharray = `${CIRCUMFERENCE}`;
 
 //     function setTimerVisual(remaining, duration = 60) {
 //         if (!ringCircle || !timerTextEl) return;
-//         // visual fix: ensure we don't go below 0 or above 1
 //         const pct = Math.max(0, Math.min(1, remaining / duration));
 //         const offset = CIRCUMFERENCE * (1 - pct);
 //         ringCircle.style.strokeDashoffset = offset;
-//         timerTextEl.textContent = String(Math.ceil(remaining)); // round up for nicer display
+//         timerTextEl.textContent = String(Math.ceil(remaining));
 
 //         if (remaining > 30) {
 //             ringCircle.classList.add('ring-green'); ringCircle.classList.remove('ring-yellow', 'ring-red');
@@ -163,12 +168,10 @@
 
 //     function startTimerLoop(duration) {
 //         cancelAnimationFrame(rafId);
-//         // Force a visual reset to full immediately
 //         setTimerVisual(duration, duration);
 
 //         function tick() {
 //             if (!timeEndsAt) return;
-//             // Calculate remaining time based on client clock
 //             const now = Date.now();
 //             const remainingSeconds = Math.max(0, (timeEndsAt - now) / 1000);
 
@@ -194,7 +197,13 @@
 //         window.socket.on('connect', () => {
 //             if (role === 'master' && !token) {
 //                 window.socket.emit('create_game', { name }, (res) => {
-//                     if (res && res.token) { token = res.token; if (tokenBadge) tokenBadge.textContent = `Token: ${token}`; showNotice(`Game created. Token: ${token}`); playSound('click'); }
+//                     if (res && res.token) {
+//                         token = res.token;
+//                         if (tokenBadge) tokenBadge.textContent = `Token: ${token}`;
+//                         showNotice(`Game created. Token: ${token}`);
+//                         playSound('click');
+//                         checkInstructions(); // <--- Trigger Modal here
+//                     }
 //                 });
 //             } else {
 //                 if (role === 'master') window.socket.emit('claim_master', { token, name }, joinCB);
@@ -207,6 +216,9 @@
 //         if (!res) return;
 //         if (res.error) { alert(res.error); location.href = '/'; return; }
 //         if (res.token) { token = res.token; if (tokenBadge) tokenBadge.textContent = `Token: ${token}`; }
+
+//         checkInstructions(); // <--- Trigger Modal here
+
 //         playSound('click');
 //     }
 
@@ -255,19 +267,13 @@
 //             playSound('click');
 //         });
 
-//         // FIX: Handle game start robustly
 //         window.socket.on('game_started', ({ duration }) => {
 //             started = true;
-//             // Always calculate local end time to avoid server sync issues
 //             const d = duration || 60;
 //             timeEndsAt = Date.now() + (d * 1000);
-
 //             showFlash('ROUND START', 'Guess the answer!', 1500);
 //             playSound('start');
-
-//             // Pass duration to reset visual correctly
 //             startTimerLoop(d);
-
 //             if (inputChat) inputChat.focus();
 //         });
 
@@ -317,7 +323,6 @@
 //     addChat('System', 'Connecting to server...', 'system');
 // })();
 
-
 // public/js/game.js
 (() => {
     const params = new URLSearchParams(location.search);
@@ -352,8 +357,8 @@
     const btnHelp = document.getElementById('btn-help');
     const btnCloseHelp = document.getElementById('btn-close-help');
 
-    // NEW KEY: Forces instructions to show up again for you
-    const STORAGE_KEY = 'seen_instructions_v3';
+    // STATE TRACKING
+    let currentMasterId = null;
 
     if (tokenBadge) tokenBadge.textContent = `Token: ${token || '—'}`;
 
@@ -366,12 +371,7 @@
         start: new Audio('/assets/sounds/start.wav')
     };
     function playSound(key) {
-        try {
-            const s = sounds[key];
-            if (!s) return;
-            s.currentTime = 0;
-            s.play().catch(() => { });
-        } catch (e) { }
+        try { const s = sounds[key]; if (!s) return; s.currentTime = 0; s.play().catch(() => { }); } catch (e) { }
     }
 
     // Flash card utility
@@ -389,27 +389,17 @@
 
     // --- INSTRUCTIONS LOGIC ---
     function checkInstructions() {
-        // Only show if modal exists AND user hasn't seen it yet
-        if (modal && !localStorage.getItem(STORAGE_KEY)) {
+        // Removed localStorage check so it shows EVERY time you join/start
+        if (modal) {
             modal.classList.add('open');
         }
     }
 
-    // Manual Open
     if (btnHelp) {
-        btnHelp.onclick = () => {
-            modal.classList.add('open');
-            playSound('click');
-        };
+        btnHelp.onclick = () => { modal.classList.add('open'); playSound('click'); };
     }
-
-    // Manual Close
     if (btnCloseHelp) {
-        btnCloseHelp.onclick = () => {
-            modal.classList.remove('open');
-            localStorage.setItem(STORAGE_KEY, '1'); // Mark as seen
-            playSound('click');
-        };
+        btnCloseHelp.onclick = () => { modal.classList.remove('open'); playSound('click'); };
     }
 
     // --- GAME LOGIC ---
@@ -439,6 +429,28 @@
         if (playerCount) playerCount.textContent = `Players: ${players.length}`;
         if (!playersList) return;
 
+        // --- MERGED FIX: DETECT MASTER CHANGE ---
+        const newMasterObj = players.find(p => p.isMaster);
+        const newMasterId = newMasterObj ? newMasterObj.id : null;
+
+        // Check if master exists, if we had a previous master, and if it's different
+        if (currentMasterId && newMasterId && currentMasterId !== newMasterId) {
+            const isMe = (window.socket && window.socket.id === newMasterId);
+
+            // Short timeout to avoid conflict with "Winner" flash
+            setTimeout(() => {
+                if (isMe) {
+                    showFlash("YOU ARE MASTER", "It is your turn to create a question!", 3000);
+                } else {
+                    showFlash("NEW MASTER", `<span style="color:var(--accent1)">${esc(newMasterObj.name)}</span> is now the Master.`, 3000);
+                }
+                playSound('click');
+            }, 500);
+        }
+        // Update tracker
+        currentMasterId = newMasterId;
+        // ----------------------------------------
+
         playersList.innerHTML = '';
         players.forEach(p => {
             const li = document.createElement('li');
@@ -464,7 +476,7 @@
         return '❤'.repeat(Math.max(0, n));
     }
 
-    // --- TIMER LOGIC (ROBUST VERSION) ---
+    // --- TIMER LOGIC ---
     const RADIUS = 54;
     const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
     if (ringCircle) ringCircle.style.strokeDasharray = `${CIRCUMFERENCE}`;
@@ -487,16 +499,12 @@
 
     function startTimerLoop(duration) {
         cancelAnimationFrame(rafId);
-        // Reset visually immediately
         setTimerVisual(duration, duration);
-
         function tick() {
             if (!timeEndsAt) return;
             const now = Date.now();
             const remainingSeconds = Math.max(0, (timeEndsAt - now) / 1000);
-
             setTimerVisual(remainingSeconds, duration);
-
             if (remainingSeconds > 0) {
                 rafId = requestAnimationFrame(tick);
             } else {
@@ -522,7 +530,7 @@
                         if (tokenBadge) tokenBadge.textContent = `Token: ${token}`;
                         showNotice(`Game created. Token: ${token}`);
                         playSound('click');
-                        checkInstructions(); // Trigger Modal
+                        checkInstructions(); // <--- MERGED FIX: Show instructions on Create
                     }
                 });
             } else {
@@ -537,8 +545,7 @@
         if (res.error) { alert(res.error); location.href = '/'; return; }
         if (res.token) { token = res.token; if (tokenBadge) tokenBadge.textContent = `Token: ${token}`; }
 
-        checkInstructions(); // Trigger Modal
-
+        checkInstructions(); // <--- MERGED FIX: Show instructions on Join
         playSound('click');
     }
 
@@ -587,16 +594,13 @@
             playSound('click');
         });
 
-        // ROBUST TIMER START
         window.socket.on('game_started', ({ duration }) => {
             started = true;
             const d = duration || 60;
             timeEndsAt = Date.now() + (d * 1000);
-
             showFlash('ROUND START', 'Guess the answer!', 1500);
             playSound('start');
             startTimerLoop(d);
-
             if (inputChat) inputChat.focus();
         });
 

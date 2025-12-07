@@ -229,3 +229,34 @@ input:focus { border-color: var(--accent1); outline: none; }
   .flash-card h2 { font-size: 1.5rem; }
   .flash-card .big-text { font-size: 2rem; }
 }
+
+/* ... existing css ... */
+
+/* FOOTER */
+.site-footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.4);
+  width: 100%;
+  margin-top: auto; /* Ensures it sits at the bottom */
+  font-family: var(--font-body);
+}
+
+.site-footer a {
+  color: var(--accent1);
+  text-decoration: none;
+  font-weight: 700;
+  transition: 0.2s;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+  text-shadow: 0 0 5px var(--accent1);
+}
+
+/* Adjust game shell to accommodate footer */
+.game-shell {
+  /* Ensure footer doesn't get cut off */
+  padding-bottom: 5px; 
+}
