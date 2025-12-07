@@ -343,7 +343,7 @@
         playSound('click');
     };
 
-    // State
+    // game logic
     let players = [];
     let started = false;
     let timeEndsAt = null;

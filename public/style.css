@@ -285,3 +285,139 @@ input:focus { border-color: var(--accent1); }
 
   .timer-text { font-size: 1.2rem; }
 }
+
+
+/* ========================= */
+/* 🎯 GAME INSTRUCTIONS MODAL */
+/* ========================= */
+
+/* Modal for instructions */
+.modal {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(0,0,0,0.8);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.modal.open { opacity: 1; pointer-events: auto; }
+.modal-content {
+  background: #111; border: 1px solid var(--accent1);
+  padding: 30px; max-width: 500px; border-radius: 12px;
+  text-align: left;
+}
+.modal-content ul { line-height: 1.6; }
+
+/* Helper classes */
+.hidden { display: none !important; }
+@keyframes popIn {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Mobile modal improvements */
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 20px;
+  }
+  .modal-content h2 {
+    font-size: 1.4rem;
+  }
+  .modal-content ul {
+    font-size: 0.95rem;
+  }
+}
+
+
+/* ---------------------------------------- */
+/* MOBILE RESPONSIVE FIXES */
+/* ---------------------------------------- */
+
+@media (max-width: 600px) {
+
+  /* Reduce hero title size */
+  .home-title, 
+  .game-title {
+    font-size: 1.4rem !important;
+    line-height: 1.6rem;
+    margin-bottom: 0.8rem;
+  }
+
+  /* Add bottom padding to the whole page */
+  body {
+    padding-bottom: 80px !important;
+  }
+
+  /* Game section bottom padding */
+  .game-wrapper,
+  .game-container {
+    padding-bottom: 80px !important;
+  }
+
+  /* Timer fix + ensure it shows */
+  #timer {
+    font-size: 1.3rem !important;
+    margin-top: 12px;
+    display: block !important;
+    visibility: visible !important;
+    position: relative;
+    right: 0;
+    text-align: center;
+  }
+
+  /* Input + send button in same field */
+  .chat-input-container {
+    position: relative;
+    width: 100%;
+  }
+
+  #guessInput {
+    width: 100%;
+    padding-right: 70px !important; /* leave space for button */
+    height: 45px;
+    font-size: 1rem;
+  }
+
+  #sendGuessBtn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 37px;
+    padding: 0 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+
+  /* Better spacing for layout items */
+  .controls,
+  .players-section,
+  .question-box,
+  .chat-box {
+    margin-bottom: 18px !important;
+  }
+
+  /* Prevent elements from touching edges */
+  .game-container,
+  .home-container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* ---------------------------------------- */
+/* EXTRA SMALL (very small phones 360px) */
+/* ---------------------------------------- */
+@media (max-width: 380px) {
+  .home-title, .game-title {
+    font-size: 1.2rem !important;
+  }
+
+  #guessInput {
+    padding-right: 60px !important;
+  }
+
+  #sendGuessBtn {
+    padding: 0 10px;
+    font-size: 0.8rem;
+  }
+}
