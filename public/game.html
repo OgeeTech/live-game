@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Neon Guess</title>
+    <title>OG Guess </title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="./style.css" />
     <script src="/socket.io/socket.io.js"></script>
@@ -44,7 +44,6 @@
                     <div class="system-msg">Connecting to server...</div>
                 </div>
 
-                <!-- ✔ UPDATED: Input wrapper for mobile-friendly send button -->
                 <div class="input-row chat-input-container">
                     <input id="input-chat" placeholder="Type message or guess..." autocomplete="off" />
                     <button id="btn-send" class="btn-glow btn-small">SEND</button>
@@ -70,9 +69,12 @@
                 <button id="btn-leave" class="btn-plain" style="margin-top:auto">Leave Game</button>
             </aside>
         </main>
+
+        <footer class="site-footer">
+            Built with 💙 <a href="https://github.com/OgeeTech" target="_blank">By OgeeTech</a>
+        </footer>
     </div>
 
-    <!-- Flash modal -->
     <div id="overlay-layer">
         <div id="flash-card" class="flash-card">
             <h2 id="flash-title">ALERT</h2>
@@ -81,7 +83,6 @@
         </div>
     </div>
 
-    <!-- Instructions modal (Kept intact) -->
     <div id="instructions-modal" class="modal">
         <div class="modal-content">
             <h2 style="color:var(--accent1)">HOW TO PLAY</h2>

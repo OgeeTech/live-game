@@ -1,45 +1,51 @@
-<!-- index.html -->
 <!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8" />
-    <title>OG Game — Home</title>
+    <title>OG Guess</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="stylesheet" href="./style.css" />
 </head>
 
 <body>
     <main class="home-page">
-        <div class="home-card">
-            <img src="/assets/images/logo.png" alt="logo" class="logo" onerror="this.style.display='none'" />
-            <h1>Live Guess — Play with Friends</h1>
-            <p class="lead">Create a session, share the token and start guessing!</p>
+        <div
+            style="width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 20px; align-items: center;">
 
-            <div class="home-actions">
-                <div class="card small-card">
-                    <h3>Create New Game</h3>
-                    <input id="create-name" placeholder="Your display name" maxlength="20" />
-                    <button id="btn-create" class="btn-glow">Create & Get Token</button>
-                    <div id="create-result" class="muted small"></div>
-                </div>
+            <div class="home-card">
+                <img src="/assets/images/logo.png" alt="logo" class="logo" onerror="this.style.display='none'" />
+                <h1
+                    style="font-size: 3rem; margin-bottom: 0; color:var(--accent1); text-shadow:0 0 20px var(--accent1)">
+                    OG GUESS</h1>
+                <p class="lead" style="margin-bottom: 30px">Real-time Multiplayer Trivia</p>
 
-                <div class="card small-card">
-                    <h3>Join Game</h3>
-                    <input id="join-name" placeholder="Your name" maxlength="20" />
-                    <input id="join-token" placeholder="Enter token (e.g. AB12CD)" maxlength="10" />
-                    <button id="btn-join" class="btn-neon">Join Game</button>
-                    <div id="join-result" class="muted small"></div>
+                <div class="home-actions">
+                    <div class="card small-card">
+                        <h3 style="color:var(--accent1)">CREATE</h3>
+                        <input id="create-name" placeholder="Display Name" maxlength="20" />
+                        <button id="btn-create" class="btn-glow" style="width:100%">NEW LOBBY</button>
+                        <div id="create-result" class="tiny" style="margin-top:10px; color:var(--danger)"></div>
+                    </div>
+
+                    <div class="card small-card">
+                        <h3 style="color:var(--accent2)">JOIN</h3>
+                        <input id="join-name" placeholder="Display Name" maxlength="20" />
+                        <input id="join-token" placeholder="Lobby Token" maxlength="10" />
+                        <button id="btn-join" class="btn-neon" style="width:100%">JOIN LOBBY</button>
+                        <div id="join-result" class="tiny" style="margin-top:10px; color:var(--danger)"></div>
+                    </div>
                 </div>
+                <p class="muted tiny" style="margin-top: 20px; opacity: 0.6;">Remember: keep the token secret among
+                    friends.</p>
             </div>
 
-            <p class="muted tiny">Remember: keep the token secret among friends. Validate inputs before joining.</p>
-        </div>
+            <footer class="site-footer">
+                Built with 💙 <a href="https://github.com/OgeeTech" target="_blank">By OgeeTech</a>
+            </footer>
 
+        </div>
     </main>
-    <footer class="site-footer">
-        Built with love <a href="https://github.com/OgeeTech" target="_blank">@OgeeTech</a>
-    </footer>
     <script src="/js/home.js"></script>
 </body>
 

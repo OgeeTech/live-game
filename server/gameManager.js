@@ -133,7 +133,7 @@ class GameManager {
         if (s.masterId !== socketId) return { error: 'Only master can start' };
         if (s.started) return { error: 'Game already started' };
         if (!s.question || !s.answer) return { error: 'Create a question first' };
-        if (s.players.length < 2) return { error: 'Need at least 2 players to start' }; // you had many players allowed; min 2
+        if (s.players.length < 3) return { error: 'Need at least 3 players to start' }; // you had many players allowed; min 3
 
         s.started = true;
         const duration = s.duration || 60;
@@ -182,7 +182,7 @@ class GameManager {
 
         if (normalized === s.answer) {
             // winner
-            player.score += 1; // +1 per your updated rule
+            player.score += 10; // +10 per your updated rule
             s.started = false;
             const winner = { id: player.id, name: player.name };
             const answer = s.answer;
