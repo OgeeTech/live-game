@@ -1,6 +1,4 @@
 
-
-// server/gameManager.js
 function makeToken() {
     return Math.random().toString(36).substr(2, 6).toUpperCase();
 }
@@ -18,7 +16,7 @@ class GameManager {
             token,
             masterId: null,
             masterName: masterName || null,
-            players: [], // ordered list {id,name,score,attemptsLeft}
+            players: [],
             started: false,
             question: null,
             answer: null,
@@ -133,7 +131,7 @@ class GameManager {
         if (s.masterId !== socketId) return { error: 'Only master can start' };
         if (s.started) return { error: 'Game already started' };
         if (!s.question || !s.answer) return { error: 'Create a question first' };
-        if (s.players.length < 3) return { error: 'Need at least 3 players to start' }; // you had many players allowed; min 3
+        if (s.players.length < 3) return { error: 'Need at least 3 players to start' };
 
         s.started = true;
         const duration = s.duration || 60;
@@ -161,13 +159,7 @@ class GameManager {
         return { ok: true, duration, timeEndsAt: s.timeEndsAt };
     }
 
-    /**
-     * Guess handling: each player has independent attemptsLeft.
-     * When a player guesses:
-     *  - decrement that player's attemptsLeft
-     *  - if correct: award +1, end round, rotate master
-     *  - if wrong: emit wrong event for that player; if all players attemptsLeft <= 0 -> end round (no winner) and rotate master
-     */
+
     guess(token, socketId, guess) {
         const s = this.getSession(token);
         if (!s) return { error: 'Session not found' };

@@ -25,8 +25,8 @@
 * { -ms-overflow-style: none; scrollbar-width: none; }
 
 body {
-  height: 100vh; /* Fallback */
-  height: 100dvh; /* Mobile viewport fix */
+  height: 100vh; 
+  height: 100dvh; 
   background-color: var(--bg-dark);
   background-image:
     linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
@@ -285,4 +285,3 @@ input:focus { border-color: var(--accent1); outline: none; }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ... existing footer styles ... */
