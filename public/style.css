@@ -243,3 +243,46 @@ input:focus { border-color: var(--accent1); outline: none; }
   .flash-card h2 { font-size: 1.5rem; }
   .flash-card .big-text { font-size: 2rem; }
 }
+
+
+/* ... keep all existing CSS ... */
+
+/* --- NEW QUESTION CARD STYLES --- */
+.question-board {
+  background: linear-gradient(135deg, rgba(0, 242, 255, 0.1), rgba(0, 11, 30, 0.8));
+  border-left: 4px solid var(--accent1);
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  display: none; /* Hidden by default */
+  animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.question-board.active {
+  display: block; /* Show when active */
+}
+
+.q-label {
+  font-size: 0.75rem;
+  color: var(--accent1);
+  letter-spacing: 2px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.q-text {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.4;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ... existing footer styles ... */

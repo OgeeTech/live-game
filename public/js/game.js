@@ -1,5 +1,3 @@
-
-
 // public/js/game.js
 (() => {
     const params = new URLSearchParams(location.search);
@@ -25,6 +23,10 @@
     const timerTextEl = document.getElementById('timer-value');
     const ringCircle = document.getElementById('ring-circle');
 
+    // REFS FOR QUESTION CARD
+    const questionBoard = document.getElementById('question-board');
+    const questionTextEl = document.getElementById('q-text');
+
     const flashCard = document.getElementById('flash-card');
     const flashTitle = document.getElementById('flash-title');
     const flashBody = document.getElementById('flash-body');
@@ -36,6 +38,10 @@
 
     // STATE TRACKING
     let currentMasterId = null;
+    let players = [];
+    let started = false; // Tracks if game is live
+    let timeEndsAt = null;
+    let rafId = null;
 
     if (tokenBadge) tokenBadge.textContent = `Token: ${token || '—'}`;
 
@@ -64,9 +70,19 @@
     }
     if (btnFlashClose) btnFlashClose.onclick = () => flashCard.classList.remove('active');
 
+    // --- QUESTION CARD UTILS ---
+    function setQuestionCard(text) {
+        if (!questionBoard || !questionTextEl) return;
+        questionTextEl.textContent = text;
+        questionBoard.classList.add('active');
+    }
+    function hideQuestionCard() {
+        if (!questionBoard) return;
+        questionBoard.classList.remove('active');
+    }
+
     // --- INSTRUCTIONS LOGIC ---
     function checkInstructions() {
-        // Removed localStorage check so it shows EVERY time you join/start
         if (modal) {
             modal.classList.add('open');
         }
@@ -79,12 +95,7 @@
         btnCloseHelp.onclick = () => { modal.classList.remove('open'); playSound('click'); };
     }
 
-    // --- GAME LOGIC ---
-    let players = [];
-    let started = false;
-    let timeEndsAt = null;
-    let rafId = null;
-
+    // --- UTILS ---
     function esc(s) { return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": "&#39;" }[m])); }
 
     function addChat(from, text, type = 'chat') {
@@ -106,15 +117,12 @@
         if (playerCount) playerCount.textContent = `Players: ${players.length}`;
         if (!playersList) return;
 
-        // --- MERGED FIX: DETECT MASTER CHANGE ---
+        // Detect Master Change
         const newMasterObj = players.find(p => p.isMaster);
         const newMasterId = newMasterObj ? newMasterObj.id : null;
 
-        // Check if master exists, if we had a previous master, and if it's different
         if (currentMasterId && newMasterId && currentMasterId !== newMasterId) {
             const isMe = (window.socket && window.socket.id === newMasterId);
-
-            // Short timeout to avoid conflict with "Winner" flash
             setTimeout(() => {
                 if (isMe) {
                     showFlash("YOU ARE MASTER", "It is your turn to create a question!", 3000);
@@ -124,9 +132,7 @@
                 playSound('click');
             }, 500);
         }
-        // Update tracker
         currentMasterId = newMasterId;
-        // ----------------------------------------
 
         playersList.innerHTML = '';
         players.forEach(p => {
@@ -197,6 +203,29 @@
         setTimerVisual(0, 60);
     }
 
+    // --- SEND LOGIC (FIX FOR DOUBLE BUBBLES) ---
+    if (btnSend) btnSend.addEventListener('click', sendChatOrGuess);
+    if (inputChat) inputChat.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChatOrGuess(); });
+
+    function sendChatOrGuess() {
+        const txt = (inputChat && inputChat.value || '').trim();
+        if (!txt) return;
+
+        // FIX: If game is NOT started, send directly as chat.
+        // This prevents the client from trying to guess, failing, and then echoing.
+        if (!started) {
+            window.socket.emit('send_chat', { text: txt });
+        } else {
+            window.socket.emit('guess', { guess: txt }, (res) => {
+                // If the server rejects the guess (e.g. game error), fallback to chat
+                if (res && res.error) window.socket.emit('send_chat', { text: txt });
+            });
+        }
+
+        if (inputChat) inputChat.value = '';
+        playSound('click');
+    }
+
     // --- SOCKETS ---
     if (window.socket && window.socket.on) {
         window.socket.on('connect', () => {
@@ -207,7 +236,7 @@
                         if (tokenBadge) tokenBadge.textContent = `Token: ${token}`;
                         showNotice(`Game created. Token: ${token}`);
                         playSound('click');
-                        checkInstructions(); // <--- MERGED FIX: Show instructions on Create
+                        checkInstructions();
                     }
                 });
             } else {
@@ -221,21 +250,7 @@
         if (!res) return;
         if (res.error) { alert(res.error); location.href = '/'; return; }
         if (res.token) { token = res.token; if (tokenBadge) tokenBadge.textContent = `Token: ${token}`; }
-
-        checkInstructions(); // <--- MERGED FIX: Show instructions on Join
-        playSound('click');
-    }
-
-    if (btnSend) btnSend.addEventListener('click', sendChatOrGuess);
-    if (inputChat) inputChat.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChatOrGuess(); });
-
-    function sendChatOrGuess() {
-        const txt = (inputChat && inputChat.value || '').trim();
-        if (!txt) return;
-        window.socket.emit('guess', { guess: txt }, (res) => {
-            if (res && res.error) window.socket.emit('send_chat', { text: txt });
-        });
-        if (inputChat) inputChat.value = '';
+        checkInstructions();
         playSound('click');
     }
 
@@ -262,12 +277,26 @@
 
     if (btnLeave) btnLeave.addEventListener('click', () => window.socket.emit('leave_game', () => location.href = '/'));
 
+    // --- SOCKET EVENT HANDLERS (WITH CLEANUP) ---
     if (window.socket && window.socket.on) {
+        // FIX: Remove old listeners to prevent "echoes" if script re-runs
+        window.socket.off('players_update');
+        window.socket.off('notice');
+        window.socket.off('chat_message');
+        window.socket.off('question_ready');
+        window.socket.off('game_started');
+        window.socket.off('wrong_guess');
+        window.socket.off('round_ended_no_winner');
+        window.socket.off('player_won');
+        window.socket.off('game_ended_timeout');
+
         window.socket.on('players_update', (list) => renderPlayers(list));
         window.socket.on('notice', (msg) => { addChat('System', msg, 'system'); showNotice(msg); });
         window.socket.on('chat_message', (m) => addChat(m.from, m.text, m.type));
+
         window.socket.on('question_ready', ({ question }) => {
             showFlash('QUESTION READY', `<div style="font-size:0.95rem">${esc(question)}</div><div style="font-size:0.8rem;opacity:0.8">Master can start the round</div>`, 3000);
+            setQuestionCard(question); // <--- Show Card
             playSound('click');
         });
 
@@ -295,19 +324,25 @@
         window.socket.on('round_ended_no_winner', ({ answer }) => {
             showFlash("ROUND OVER", `No winner — answer: <span style="color:var(--accent1)">${esc(answer)}</span>`, 4000);
             playSound('timeout');
+            started = false;
             stopTimerLoop();
+            hideQuestionCard(); // <--- Hide Card
         });
 
         window.socket.on('player_won', ({ winnerId, winnerName, answer }) => {
             showFlash("WE HAVE A WINNER", `<strong>${esc(winnerName)}</strong><br>Answer: ${esc(answer)}`, 4500, true);
             playSound('win');
+            started = false;
             stopTimerLoop();
+            hideQuestionCard(); // <--- Hide Card
         });
 
         window.socket.on('game_ended_timeout', ({ answer }) => {
             showFlash("TIME'S UP", `Answer was: <span style="color:var(--accent1)">${esc(answer)}</span>`, 3500);
             playSound('timeout');
+            started = false;
             stopTimerLoop();
+            hideQuestionCard(); // <--- Hide Card
         });
     }
 

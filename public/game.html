@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>OG Guess </title>
+    <title>OG Guess</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="./style.css" />
     <script src="/socket.io/socket.io.js"></script>
@@ -39,6 +39,11 @@
             <section class="left-panel">
 
                 <div id="notice-board" class="notice" style="display:none"></div>
+
+                <div id="question-board" class="question-board">
+                    <div class="q-label">CURRENT QUESTION</div>
+                    <div id="q-text" class="q-text">...</div>
+                </div>
 
                 <div class="chat-window" id="chat">
                     <div class="system-msg">Connecting to server...</div>
