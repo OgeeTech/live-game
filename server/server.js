@@ -105,43 +105,53 @@ io.on('connection', socket => {
     });
 
     
-    socket.on('guess', ({ guess }, cb) => {
+   socket.on('guess', ({ guess }, cb) => {
         const token = socket.data.token;
         if (!token) return cb && cb({ error: 'Not in session' });
 
         const session = gm.getSession(token);
         if (!session) return cb && cb({ error: 'Session not found' });
 
-        //  Validate the guess logic FIRST
         const r = gm.guess(token, socket.id, guess);
-
-        
         if (r.error) return cb && cb(r);
 
-        // Only emit the guess announcement if it was a valid guess attempt
         const player = session.players.find(p => p.id === socket.id);
-        if (player) {
+        if (player && !r.correct) {
             io.to(token).emit('chat_message', { from: player.name, text: `guessed: ${guess}`, type: 'guess' });
         }
 
         if (r.correct) {
-            // someone guessed right -> announce winner
-            io.to(token).emit('player_won', { winnerId: r.winner.id, winnerName: r.winner.name, answer: r.answer });
+            io.to(token).emit('player_won', { winnerId: r.winner.id, winnerName: r.winner.name, earned: r.earned });
             io.to(token).emit('players_update', gm.getPlayers(token));
+            
+            if (r.roundEnded) {
+                io.to(token).emit('round_ended_all_done', { answer: r.answer });
+                // NEW: Trigger Match End if someone won
+                if (r.matchOver) io.to(token).emit('match_ended', { podium: r.podium });
+            }
         } else {
-            // wrong guess event for that player with their current attemptsLeft
-            // if roundEnded true -> reveal answer and notify all
             if (r.roundEnded) {
                 io.to(token).emit('wrong_guess', { name: player.name, attemptsLeft: r.attemptsLeft });
                 io.to(token).emit('round_ended_no_winner', { answer: r.answer });
                 io.to(token).emit('players_update', gm.getPlayers(token));
+                // NEW: Trigger Match End if someone won
+                if (r.matchOver) io.to(token).emit('match_ended', { podium: r.podium });
             } else {
                 io.to(token).emit('wrong_guess', { name: player.name, attemptsLeft: r.attemptsLeft });
                 io.to(token).emit('players_update', gm.getPlayers(token));
             }
         }
-
         return cb && cb(r);
+    });
+
+    
+    socket.on('play_again', (cb) => {
+        const token = socket.data.token;
+        if (!token) return;
+        gm.resetScores(token);
+        io.to(token).emit('players_update', gm.getPlayers(token));
+        io.to(token).emit('match_restarted');
+        io.to(token).emit('notice', 'The Host has started a new match. Scores are reset!');
     });
 
     socket.on('send_chat', ({ text }, cb) => {
