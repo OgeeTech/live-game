@@ -104,7 +104,7 @@ io.on('connection', socket => {
         return cb && cb({ ok: true });
     });
 
-    // --- FIX IS HERE ---
+    
     socket.on('guess', ({ guess }, cb) => {
         const token = socket.data.token;
         if (!token) return cb && cb({ error: 'Not in session' });
@@ -112,15 +112,13 @@ io.on('connection', socket => {
         const session = gm.getSession(token);
         if (!session) return cb && cb({ error: 'Session not found' });
 
-        // 1. Validate the guess logic FIRST
+        //  Validate the guess logic FIRST
         const r = gm.guess(token, socket.id, guess);
 
-        // 2. If there is an error (e.g. game not started), return immediately.
-        // This prevents the "guessed:" message from showing up, allowing the client
-        // to fall back to a normal chat message instead.
+        
         if (r.error) return cb && cb(r);
 
-        // 3. Only emit the guess announcement if it was a valid guess attempt
+        // Only emit the guess announcement if it was a valid guess attempt
         const player = session.players.find(p => p.id === socket.id);
         if (player) {
             io.to(token).emit('chat_message', { from: player.name, text: `guessed: ${guess}`, type: 'guess' });

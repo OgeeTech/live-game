@@ -134,7 +134,7 @@
         }
         currentMasterId = newMasterId;
 
-        playersList.innerHTML = '';
+       playersList.innerHTML = '';
         players.forEach(p => {
             const li = document.createElement('li');
             const nameHtml = `<div style="display:flex;align-items:center;gap:10px">
@@ -144,7 +144,12 @@
                             <div style="font-size:0.8rem;opacity:0.7">Score: ${p.score}</div>
                           </div>
                         </div>`;
-            const attemptsHtml = `<div class="attempts" id="attempt-${p.id}">${renderAttempts(p.attemptsLeft)}</div>`;
+            
+            // Check if player is master. If yes, show "HOST", otherwise show their remaining hearts
+            const attemptsHtml = p.isMaster 
+                ? `<div class="attempts" style="color: gold; font-weight: bold; font-size: 0.8rem;">HOST</div>` 
+                : `<div class="attempts" id="attempt-${p.id}">${renderAttempts(p.attemptsLeft)}</div>`;
+            
             li.innerHTML = `${nameHtml}${attemptsHtml}`;
             playersList.appendChild(li);
         });
@@ -279,7 +284,7 @@
 
     // --- SOCKET EVENT HANDLERS (WITH CLEANUP) ---
     if (window.socket && window.socket.on) {
-        // FIX: Remove old listeners to prevent "echoes" if script re-runs
+        
         window.socket.off('players_update');
         window.socket.off('notice');
         window.socket.off('chat_message');

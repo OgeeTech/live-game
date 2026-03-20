@@ -148,17 +148,12 @@ class GameManager {
             s.answer = null;
             s.timeEndsAt = null;
             s.timer = null;
-
-            // rotate master to next player
-            this.rotateMasterNext(token);
-
             io.to(token).emit('game_ended_timeout', { answer });
             io.to(token).emit('players_update', this.getPlayers(token));
         }, duration * 1000);
 
         return { ok: true, duration, timeEndsAt: s.timeEndsAt };
     }
-
 
     guess(token, socketId, guess) {
         const s = this.getSession(token);
@@ -174,7 +169,7 @@ class GameManager {
 
         if (normalized === s.answer) {
             // winner
-            player.score += 10; // +10 per your updated rule
+            player.score += 10; 
             s.started = false;
             const winner = { id: player.id, name: player.name };
             const answer = s.answer;
@@ -187,16 +182,12 @@ class GameManager {
             s.answer = null;
             s.timeEndsAt = null;
 
-            // rotate master to next player
-            this.rotateMasterNext(token);
-
             return { ok: true, correct: true, winner, answer };
         } else {
             // wrong guess
-            // Check if all players exhausted their attempts
             const allExhausted = s.players.every(p => p.attemptsLeft <= 0);
             if (allExhausted) {
-                // end round, reveal answer, rotate master
+                // end round, reveal answer
                 s.started = false;
                 const answer = s.answer;
                 s.question = null;
@@ -204,7 +195,7 @@ class GameManager {
                 s.timeEndsAt = null;
                 if (s.timer) { clearTimeout(s.timer); s.timer = null; }
 
-                this.rotateMasterNext(token);
+                // REMOVED: this.rotateMasterNext(token);
                 return { ok: true, correct: false, attemptsLeft: player.attemptsLeft, roundEnded: true, answer };
             } else {
                 return { ok: true, correct: false, attemptsLeft: player.attemptsLeft, roundEnded: false };
@@ -212,23 +203,7 @@ class GameManager {
         }
     }
 
-    rotateMasterNext(token) {
-        const s = this.getSession(token);
-        if (!s) return;
-        if (s.players.length === 0) {
-            s.masterId = null;
-            s.masterName = null;
-            return;
-        }
-
-        let idx = s.players.findIndex(p => p.id === s.masterId);
-        if (idx === -1) idx = 0;
-        const nextIdx = (idx + 1) % s.players.length;
-        s.masterId = s.players[nextIdx].id;
-        s.masterName = s.players[nextIdx].name;
-        const [nextPlayer] = s.players.splice(nextIdx, 1);
-        s.players.unshift(nextPlayer);
-    }
+   
 }
 
 module.exports = GameManager;
